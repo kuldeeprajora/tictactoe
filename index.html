@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tic Tac Toe</title>
+  <style>
+    canvas {
+      border: 1px solid #000;
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="ticTacToe" width="300" height="300"></canvas>
+<div id="message"></div>
+<button id="playAgainBtn" onclick="resetGame()">Play Again</button>
+
+<script>
+  const canvas = document.getElementById('ticTacToe');
+  const ctx = canvas.getContext('2d');
+  const cellSize = 100;
+  let board = [[null, null, null], [null, null, null], [null, null, null]];
+  let currentPlayer = 'X';
+  let gameActive = true;
+
+  canvas.addEventListener('click', handleCanvasClick);
+
+  function drawBoard() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    ctx.beginPath();
+    for (let i = 1; i < 3; i++) {
+      ctx.moveTo(i * cellSize, 0);
+      ctx.lineTo(i * cellSize, canvas.height);
+      ctx.moveTo(0, i * cellSize);
+      ctx.lineTo(canvas.width, i * cellSize);
+    }
+    ctx.stroke();
+
+    for (let row = 0; row < 3; row++) {
+      for (let col = 0; col < 3; col++) {
+        const symbol = board[row][col];
+        if (symbol === 'X') {
+          drawX(col, row);
+        } else if (symbol === 'O') {
+          drawO(col, row);
+        }
+      }
+    }
+  }
+
+  function drawX(col, row) {
+    const x = col * cellSize + cellSize / 2;
+    const y = row * cellSize + cellSize / 2;
+
+    ctx.beginPath();
+    ctx.moveTo(x - cellSize / 3, y - cellSize / 3);
+    ctx.lineTo(x + cellSize / 3, y + cellSize / 3);
+    ctx.moveTo(x - cellSize / 3, y + cellSize / 3);
+    ctx.lineTo(x + cellSize / 3, y - cellSize / 3);
+    ctx.stroke();
+  }
+
+  function drawO(col, row) {
+    const x = col * cellSize + cellSize / 2;
+    const y = row * cellSize + cellSize / 2;
+    const radius = cellSize / 3;
+
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, 2 * Math.PI);
+    ctx.stroke();
+  }
+
+  function handleCanvasClick(event) {
+    if (!gameActive) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const mouseX = event.clientX - rect.left;
+    const mouseY = event.clientY - rect.top;
+
+    const col = Math.floor(mouseX / cellSize);
+    const row = Math.floor(mouseY / cellSize);
+
+    if (board[row][col] === null) {
+      board[row][col] = currentPlayer;
+      drawBoard();
+
+      if (checkWin()) {
+        document.getElementById('message').innerText = `Player ${currentPlayer} wins!`;
+        gameActive = false;
+      } else if (checkTie()) {
+        document.getElementById('message').innerText = `It's a tie!`;
+        gameActive = false;
+      } else {
+        currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+      }
+    }
+  }
+
+  function checkWin() {
+    for (let i = 0; i < 3; i++) {
+      if (board[i][0] === currentPlayer && board[i][1] === currentPlayer && board[i][2] === currentPlayer) {
+        return true;
+      }
+      if (board[0][i] === currentPlayer && board[1][i] === currentPlayer && board[2][i] === currentPlayer) {
+        return true;
+      }
+    }
+    if (board[0][0] === currentPlayer && board[1][1] === currentPlayer && board[2][2] === currentPlayer) {
+      return true;
+    }
+    if (board[0][2] === currentPlayer && board[1][1] === currentPlayer && board[2][0] === currentPlayer) {
+      return true;
+    }
+    return false;
+  }
+
+  function checkTie() {
+    for (let row = 0; row < 3; row++) {
+      for (let col = 0; col < 3; col++) {
+        if (board[row][col] === null) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  function resetGame() {
+    board = [[null, null, null], [null, null, null], [null, null, null]];
+    currentPlayer = 'X';
+    gameActive = true;
+    document.getElementById('message').innerText = '';
+    drawBoard();
+  }
+
+  drawBoard();
+</script>
+
+</body>
+</html>
